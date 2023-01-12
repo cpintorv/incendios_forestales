@@ -261,3 +261,68 @@ def convertir_jpeg(path):
         im = Image.open(path + file)
         im.thumbnail(im.size)
         im.save(path + file_no_ext + ".jpeg", "JPEG", quality=100)
+
+def preprocesado(df):
+  """
+  Preprocesamiento para los modelos de ML. Separa la muestra de train y test de
+  X e y con 20%-80% y estandariza todas las variables X.
+  
+  Variable de entrada:
+    df: Dataframe que se quiere preprocesar
+    
+   Variable de salida:
+    X_train: Variables predictoras de entrenamiento
+    X_test: Variables predictoras de validación
+    y_train: Variable objetivo de entrenamiento
+    y_test: Variable objetivo de validación
+    
+  Ejemplo:
+    X_train, X_test, y_train, y_test = preprocesado(df = df_temperatura)
+  """
+    # Procesos previos
+    # Separamos los datos
+    X = df[lst_features_x]
+    y = df["target"]
+
+    # Dividimos los datos en entrenamiento y test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+    
+    return X_train, X_test, y_train, y_test
+  
+def preprocesado(df_train, df_test):
+  """
+  Preprocesamiento para los modelos de DL. Separa la muestra de train y test de
+  X e y utilizando los dataframe que se le están pasando como parámetros.
+  
+  Variable de entrada:
+    df_train: Dataframe de entrenamiento
+    df_test: Dataframe de validacion
+    
+   Variable de salida:
+    X_train: Variables predictoras de entrenamiento
+    X_test: Variables predictoras de validación
+    y_train: Variable objetivo de entrenamiento
+    y_test: Variable objetivo de validación
+    
+  Ejemplo:
+    X_train, X_test, y_train, y_test = preprocesado(df_train = df_temperatura_train
+                                                    df_test = df_temperatura_test)
+  """
+    # Procesos previos
+    # Separamos los datos
+    X_train = df_train[lst_features_x]
+    y_train = df_train["target"]
+    X_test = df_test[lst_features_x]
+    y_test = df_test["target"]
+
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+    
+    return X_train, X_test, y_train, y_test
