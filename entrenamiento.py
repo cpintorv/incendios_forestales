@@ -99,3 +99,101 @@ def genera_dataframe(ruta_incendio, ruta_no_incendio, radar, reshape_x,
   df=df.sample(frac=1).reset_index(drop=True)
 
   return df, lst_features_x, df_id
+
+
+def almacena_bn(ruta_incendio, ruta_no_incendio, radar):
+  """
+  Esta función está especialmente creada para convertir a blanco y negro las
+  imágenes reales
+
+  Variables entrada:
+    ruta_incendio: Carpeta donde se encuentran las imágenes de incendio
+    ruta_no_incendio: Carpeta donde se encuentran las imágenes de no incendio
+    radar: tipo de imagen
+
+  Ejemplo de llamada:
+    df_temperatura = genera_dataframe(ruta_incendio = path_incendios,
+                                      ruta_no_incendio = path_no_incendios,
+                                      radar= "incendios")
+  """
+  # Listado de incendios
+  lista_ficheros_incendios = []
+  for file in os.listdir(path_incendios):
+    if radar in file:
+      imagen = cv2.imread(path_incendios + file)
+      image_grey = np.array(cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY))
+      cv2.imwrite(path_incendios + 'g' + file, image_grey)
+
+  # Listado de no incendios
+  lista_ficheros_no_incendios = []
+  for file in os.listdir(path_no_incendios):
+    if radar in file:
+      imagen = cv2.imread(path_no_incendios + file)
+      image_grey = np.array(cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY))
+      cv2.imwrite(path_no_incendios + 'g' + file, image_grey)
+
+
+def genera_dataframe_bn(ruta_incendio, ruta_no_incendio, radar, extension,
+                        reshape_x, reshape_y):
+  """
+  Esta función parte de las rutas en la que se les haya marcado incendios y no
+  incendios y devuelve un dataframe con el ancho solicitado.
+
+  Variables entrada:
+    ruta_incendio: Carpeta donde se encuentran las imágenes de incendio
+    ruta_no_incendio: Carpeta donde se encuentran las imágenes de no incendio
+    radar: tipo de radar (LST_Day, NDVI, et...)
+    reshape_x: número de píxeles de ancho que se espera.
+    reshape_y: número de píxeles de alto que se espera.
+
+  Ejemplo de llamada:
+    df_temperatura = genera_dataframe(ruta_incendio = path_incendios,
+                                      ruta_no_incendio = path_no_incendios,
+                                      radar= "LST_Day",
+                                      reshape_x = 23,
+                                      reshape_y = 23)
+  """
+  # Listado de incendios
+  lista_ficheros_incendios = []
+  count = 0
+  n_varibles_x =reshape_x * reshape_y
+  for file in os.listdir(path_incendios):
+    print("imagen: {}".format(path_incendios + file))
+    if (radar in file) and (extension in file):
+      imagen = cv2.imread(path_incendios + file)[0:reshape_x, 0:reshape_y, :]
+      image_grey = np.array(cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY))
+      image_grey_reshape = image_grey.reshape(n_varibles_x)
+      lst_grey_reshape = image_grey_reshape.tolist()
+      lst_grey_reshape.append(1) # Incorporo el target
+      lista_ficheros_incendios.append(lst_grey_reshape)
+    #count = count + 1
+    #print(count, end = '\r')
+
+  # Listado de no incendios
+  lista_ficheros_no_incendios = []
+  for file in os.listdir(path_no_incendios):
+    if (radar in file) and (extension in file):
+      imagen = cv2.imread(path_no_incendios + file)[0:reshape_x, 0:reshape_y, :]
+      image_grey = np.array(cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY))
+      image_grey_reshape = image_grey.reshape(n_varibles_x)
+      lst_grey_reshape = image_grey_reshape.tolist()
+      lst_grey_reshape.append(0) # Incorporo el target
+      lista_ficheros_incendios.append(lst_grey_reshape)
+    #count = count + 1
+    #print(count, end = '\r')
+
+  # Lo paso a DataFrame
+  lst_features = []
+  lst_features_x = []
+  for i in range(n_varibles_x):
+    lst_features.append("col" + str(i))
+    lst_features_x.append("col" + str(i))
+  lst_features.append("target")
+
+  # Genero el dataframe en sí
+  df = pd.DataFrame(data = lista_ficheros_incendios, columns =lst_features )
+
+  # Barajo el dataframe
+  df=df.sample(frac=1).reset_index(drop=True)
+
+  return df
