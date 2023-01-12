@@ -217,3 +217,47 @@ def borrado_entrenamiento_test():
   for file in os.listdir(path_test_no_incendio):
     os.remove(path_test_no_incendio + file)
 
+# Plot del training loss y el accuracy
+def plot_prediction(n_epochs, mfit):
+  """
+  Esta función dibuja la función de pérdida y el valor de f1 tanto del
+  entrenamiento como de la validación.
+  Variables de entrada:
+    n_epochs: Número de pasos que se haya utilizado en la Red
+    mfit: Modelo entrenado
+  
+  Ejemplo:
+    plot_prediction(n_epochs = 200, mfit = mod_conv):
+  """
+    plt.plot(mfit.history['loss'])
+    plt.plot(mfit.history['val_loss'])
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.show()
+    plt.plot(mfit.history['accuracy'])
+    plt.plot(mfit.history['val_accuracy'])
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.show()
+    plt.plot(mfit.history['f1_score'])
+    plt.plot(mfit.history['val_f1_score'])
+    plt.ylabel('f1_score')
+    plt.xlabel('epoch')
+
+def convertir_jpeg(path):
+  """
+  La siguiente función convierte todas las imágenes de una ruta a formato
+  JPEG que es el que lee el data loading utilizado para las redes neuronales
+  artificiales
+
+  Variable de entrada:
+    Path: Ruta de google drive donde va a leer las imágenes
+
+  Ejemplo:
+  convertir_jpeg('/content/gdrive/My Drive/incendios_satelite/Incendios masivos/')
+  """
+    for file in os.listdir(path):
+        file_no_ext = file[0:-4]
+        im = Image.open(path + file)
+        im.thumbnail(im.size)
+        im.save(path + file_no_ext + ".jpeg", "JPEG", quality=100)
