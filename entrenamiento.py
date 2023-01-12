@@ -197,3 +197,23 @@ def genera_dataframe_bn(ruta_incendio, ruta_no_incendio, radar, extension,
   df=df.sample(frac=1).reset_index(drop=True)
 
   return df
+
+def borrado_entrenamiento_test():
+  """
+  La siguiente función borra todas las imágenes en las direcciones principales de guardado
+  de imágenes
+  """
+  path_train_incendio = '/content/gdrive/My Drive/incendios_satelite/Entrenamiento_incendio/'
+  path_train_no_incendio = '/content/gdrive/My Drive/incendios_satelite/Entrenamiento_no_incendio/'
+  path_test_incendio = '/content/gdrive/My Drive/incendios_satelite/Validacion_incendio/'
+  path_test_no_incendio = '/content/gdrive/My Drive/incendios_satelite/Validacion_no_incendio/'
+  # Quito las imágenes negras o las que tengan bordes negros
+  for file in os.listdir(path_train_incendio):
+    os.remove(path_train_incendio + file)
+  for file in os.listdir(path_train_no_incendio):
+    os.remove(path_train_no_incendio + file)
+  for file in os.listdir(path_test_incendio):
+    os.remove(path_test_incendio + file)
+  for file in os.listdir(path_test_no_incendio):
+    os.remove(path_test_no_incendio + file)
+
