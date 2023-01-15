@@ -209,3 +209,69 @@ def red_convolucional(train, test, kernel_size, lst_lr, lst_epoch, lado):
                 lr, epochs, ks, val_accuracy, val_f1_score
             ))
   return var_results_dnn
+
+
+# Incorpora red convolucional con penalizaciones
+from tensorflow import keras
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Flatten, Activation, Dropout,\
+    MaxPooling2D
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
+import tensorflow_addons as tfa
+from sklearn.metrics import f1_score, accuracy_score, precision_score,\
+    recall_score
+from keras import backend as K
+from keras.regularizers import l2
+
+def red_convolucional_penal(train, test, kernel_size, lst_lr, lst_epoch, lado):
+  print("Comienza el entrenamiento ... ")
+  var_results_dnn = []
+  regularization = l2(0.01)
+
+  for ks in kernel_size:
+    for lr in lst_lr:
+        for epochs in lst_epoch:
+            # Crear el modelo ANN
+            model2 = Sequential()
+            model2.add(Conv2D(16, kernel_size=(ks, ks), activation='relu',
+                              input_shape=(lado, lado, 1),
+                              kernel_regularizer=regularization))
+            model2.add(Conv2D(32, (ks, ks), activation='relu', padding='same'))
+            model2.add(MaxPooling2D(pool_size=(2, 2)))
+            model2.add(Dropout(0.2))
+            model2.add(Conv2D(64, (ks, ks), activation='relu', padding='same'))
+            model2.add(Conv2D(64, (ks, ks), activation='relu', padding='same'))
+            model2.add(MaxPooling2D(pool_size=(2, 2)))
+            model2.add(Dropout(0.2))
+            model2.add(Flatten())
+            model2.add(Dense(1, activation='sigmoid'))
+
+            # Compile
+            loss_fn = keras.losses.BinaryCrossentropy()
+            opt = keras.optimizers.Adam(learning_rate = lr)
+            model2.compile(optimizer=opt, loss=loss_fn,
+                            metrics=['accuracy',
+                                    tfa.metrics.F1Score(
+                                        num_classes=2,average="micro",
+                                        threshold=0.75)])
+
+            model_conv = model2.fit(train_conv,
+                                    epochs=epochs, 
+                                     validation_data=validation_conv)
+        
+            val_accuracy = model_conv.history["val_accuracy"][epochs-1]
+            val_f1_score = model_conv.history["val_f1_score"][epochs-1]
+            
+            # Almacena los resultados para comparar más tarde
+            var_results_dnn.append({"learning rate": lr,
+                            "epochs": epochs,
+                            "kernel_size": ks,
+                            "accuracy": val_accuracy,
+                            "f1_score": val_f1_score})
+            
+            print("learning rate {0}, epochs {1} kernel size {2}, accuracy {3} y f1_score {4}".format(
+                lr, epochs, ks, val_accuracy, val_f1_score
+            ))
+  return var_results_dnn
