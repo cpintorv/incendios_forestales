@@ -1,15 +1,16 @@
 # Red convolucional
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, classification_report,\
+    f1_score, accuracy_score, precision_score, recall_score
+import seaborn as sns
 from tensorflow import keras
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, Flatten, Activation, Dropout,\
     MaxPooling2D
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report
-import seaborn as sns
 import tensorflow_addons as tfa
-from sklearn.metrics import f1_score, accuracy_score, precision_score,\
-    recall_score
 from keras import backend as K
+from keras.regularizers import l2
+
 
 # Regresión logística
 def regresion_logistica(X_train, X_test, y_train, y_test, C, 
@@ -212,19 +213,6 @@ def red_convolucional(train, test, kernel_size, lst_lr, lst_epoch, lado):
 
 
 # Incorpora red convolucional con penalizaciones
-from tensorflow import keras
-from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten, Activation, Dropout,\
-    MaxPooling2D
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, classification_report
-import seaborn as sns
-import tensorflow_addons as tfa
-from sklearn.metrics import f1_score, accuracy_score, precision_score,\
-    recall_score
-from keras import backend as K
-from keras.regularizers import l2
-
 def red_convolucional_penal(train, test, kernel_size, lst_lr, lst_epoch, lado):
   print("Comienza el entrenamiento ... ")
   var_results_dnn = []
